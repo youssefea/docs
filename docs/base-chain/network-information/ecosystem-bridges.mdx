@@ -1,6 +1,6 @@
 ---
 title: "Bridge to Base"
-description: "Move ETH, stablecoins, and tokens to and from Base — from a Coinbase account, Ethereum, Solana, or Bitcoin."
+description: "Move ETH, stablecoins, and tokens to and from Base using the standard bridge, fast bridges, aggregators, or cross-chain messaging protocols."
 ---
 
 Move assets to and from Base using the routes below. Pick the one that matches where your assets are today.
@@ -10,13 +10,28 @@ Move assets to and from Base using the routes below. Pick the one that matches w
 | Coming from | Recommended route | Typical assets |
 |---|---|---|
 | A Coinbase account | Withdraw directly to Base (no bridge) | ETH, USDC, cbBTC |
-| Ethereum (L1) | [Superbridge](https://superbridge.app/?fromChainId=1&toChainId=8453) or [Brid.gg](https://www.brid.gg/?fromChainId=1&toChainId=8453) | ETH, ERC-20s |
+| Ethereum (L1) | [Superbridge](https://superbridge.app/?fromChainId=1&toChainId=8453) or [Brid.gg](https://www.brid.gg/?fromChainId=1&toChainId=8453), or a [fast bridge](#fast-bridges) | ETH, ERC-20s |
+| Another EVM chain | A [fast bridge](#fast-bridges) or [bridge aggregator](#bridge-aggregators) | ETH, stablecoins, ERC-20s |
 | Solana | [Base–Solana bridge](/specifications/base-protocol/bridging/base-solana-bridge) | SOL, SPL tokens |
 | Bitcoin | [Garden](https://app.garden.finance/?output-chain=base&output-asset=cbBTC) | BTC → cbBTC |
+
+Fast bridges and aggregators are third-party services with their own trust model. Compare them with the standard bridge in [Compare Bridge Types](#compare-bridge-types).
 
 <Note>
 If you hold funds in a Coinbase account, you can withdraw many assets straight onto the Base network — select **Base** as the network when withdrawing, no bridge required. This is often the fastest path for USDC and ETH.
 </Note>
+
+## Compare Bridge Types
+
+Bridges to and from Base fall into three types. They differ in speed and in who you trust to deliver your funds.
+
+| Bridge type | Withdrawal to Ethereum | You trust |
+|---|---|---|
+| [Standard bridge](#from-ethereum) | 5-day [finalization window](/specifications/base-protocol/bridging/withdrawals), or 1 day when both TEE and ZK proofs back the proposal | Base's proofs on Ethereum |
+| [Fast bridge](#fast-bridges) | Typically seconds to minutes | The provider |
+| [Messaging protocol](#cross-chain-messaging-protocols) | Varies by protocol and configuration | The protocol and the token's settings |
+
+The finalization window applies only to standard bridge withdrawals from Base to Ethereum; standard bridge deposits from Ethereum to Base do not wait for it. To see why the window exists, read [Withdrawals](/specifications/base-protocol/bridging/withdrawals).
 
 ## From Ethereum
 
@@ -31,6 +46,8 @@ Bridge ETH and supported ERC-20s between Ethereum mainnet (L1) and Base. Both pr
   </Card>
 </CardGroup>
 
+Withdrawals from Base to Ethereum through the standard bridge wait for the finalization window shown in [Compare Bridge Types](#compare-bridge-types). Superbridge can also route through third-party bridges; check which route it selects before you confirm.
+
 ### Programmatic Bridging
 
 To bridge ETH and ERC-20s from Ethereum to Base in code, start from the [sample repository](https://github.com/base-org/guides/tree/main/bridge/native).
@@ -41,7 +58,49 @@ To bridge ETH and ERC-20s from Ethereum to Base in code, start from the [sample 
 
 ### For Token Issuers
 
-If you have an ERC-20 on Ethereum and want to enable bridging to Base, use the sample repository above as a starting point for the standard bridge contracts, then list your token on the Superchain token list.
+To make an ERC-20 on Ethereum bridgeable to Base through the standard bridge, use the sample repository above as a starting point for the standard bridge contracts, then list your token on the Superchain token list.
+
+To issue one token across Base and other chains, use a [cross-chain messaging protocol](#cross-chain-messaging-protocols).
+
+## Fast Bridges
+
+Fast bridges move assets between Base, Ethereum, and other chains in both directions, typically in seconds to minutes. Providers pay you out from liquidity on the destination chain, then settle through their own mechanism.
+
+| Provider | How it works | Links |
+|---|---|---|
+| Across | Intent-based bridge filled by competing relayers | [App](https://app.across.to/bridge), [Docs](https://docs.across.to) |
+| Relay | Bridging and swaps filled by solvers | [App](https://relay.link), [Docs](https://docs.relay.link) |
+| Stargate | Liquidity-pool bridge built on LayerZero | [App](https://stargate.finance/bridge), [Docs](https://stargateprotocol.gitbook.io/stargate/v2-user-docs) |
+
+<Warning>
+**Fast bridges do not inherit Base's security.** Your funds depend on the provider's contracts, relayers, and liquidity, and fees vary by route and size. Review the provider's security model, supported assets, and fees, and test with a small amount first.
+</Warning>
+
+## Bridge Aggregators
+
+Aggregators quote routes across many bridges and pick one for you, which helps when you are coming from a chain without a direct route to Base. The route's security depends on the bridge the aggregator selects, so check which bridge it uses before you confirm.
+
+<CardGroup cols={2}>
+  <Card title="Jumper" icon="route" href="https://jumper.exchange">
+    Bridge and swap aggregator built on LI.FI.
+  </Card>
+  <Card title="Bungee" icon="route" href="https://www.bungee.exchange">
+    Bridge and swap aggregator built on Socket.
+  </Card>
+</CardGroup>
+
+## Cross-Chain Messaging Protocols
+
+Cross-chain messaging protocols let a token issuer deploy one token across Base and other chains. Both of these support Base Mainnet:
+
+| Protocol | Token standard | Base reference |
+|---|---|---|
+| Chainlink CCIP | Cross-Chain Token (CCT) | [Base on CCIP](https://docs.chain.link/ccip/directory/mainnet/chain/ethereum-mainnet-base-1) |
+| LayerZero V2 | Omnichain Fungible Token (OFT) | [OFT quickstart](https://docs.layerzero.network/v2/developers/evm/oft/quickstart) |
+
+On LayerZero, Base Mainnet is endpoint ID `30184`; see [deployed contracts](https://docs.layerzero.network/v2/deployments/deployed-contracts).
+
+A token issued this way is secured by the protocol's own network, not by Base's standard bridge. Choose the protocol and its security settings before launch.
 
 ## From Solana
 
