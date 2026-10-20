@@ -62,6 +62,10 @@ The block number in this example is a placeholder. Before you submit, call [`eth
 | `block_number` | `op`, `value` |
 | `flashblock_index` | `op`, `value` |
 
+<Note>
+The `nonce` predicate is live on Base Sepolia only. It goes live on Base Mainnet with the [Denim](/upgrades/denim/overview) upgrade, which is targeting November 2026. Until then, Base Mainnet supports the `balance`, `storage`, `block_number`, and `flashblock_index` predicates.
+</Note>
+
 The supported operators are `<`, `<=`, `=`, `!=`, `>`, and `>=`. Predicate values use `0x`-prefixed hexadecimal strings. The `mask` defaults to all ones.
 A `flashblock_index` value must be between `1` and `10`, inclusive (`0x1` through `0xa` in hexadecimal).
 

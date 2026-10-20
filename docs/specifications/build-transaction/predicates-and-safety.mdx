@@ -15,6 +15,10 @@ Predicates are inclusion conditions. They do not guarantee inclusion or successf
 | `block_number` | `op`, `value` |
 | `flashblock_index` | `op`, `value` |
 
+<Note>
+The `nonce` predicate is live on Base Sepolia only. It goes live on Base Mainnet with the [Denim](/upgrades/denim/overview) upgrade, which is targeting November 2026. Until then, Base Mainnet supports the `balance`, `storage`, `block_number`, and `flashblock_index` predicates.
+</Note>
+
 The supported operators are `<`, `<=`, `=`, `!=`, `>`, and `>=`. Predicate values use `0x`-prefixed hexadecimal strings.
 
 ## Evaluation
@@ -37,6 +41,10 @@ An earlier transaction can change the balance, nonce, or storage value that a pe
 ```
 
 ## Nonce Example
+
+<Note>
+This predicate works on Base Sepolia only until [Denim](/upgrades/denim/overview) activates on Base Mainnet.
+</Note>
 
 ```json Nonce predicate lines wrap expandable
 {
